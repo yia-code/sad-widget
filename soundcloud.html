@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sad SoundCloud Widget</title>
+<title>Sad SoundCloud Player</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -22,47 +22,56 @@
   .wrap { zoom: var(--scale); padding: 6px 10px 14px 6px; width: max-content; }
 
   .card {
-    position: relative; width: 520px; height: 132px; box-sizing: border-box;
+    position: relative; width: 300px; height: 300px; box-sizing: border-box;
     background:
       linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 14px 14px,
       linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 14px 14px,
-      radial-gradient(120% 140% at 60% 40%, var(--paper) 55%, var(--paper-2) 100%);
+      radial-gradient(120% 120% at 40% 30%, var(--paper) 55%, var(--paper-2) 100%);
     border: 1.5px solid var(--ink); border-radius: 3px; overflow: hidden; color: var(--ink);
     box-shadow: 0 6px 22px rgba(0,0,0,.35);
     transition: opacity .8s ease, transform .8s ease;
   }
   .card.hidden { opacity: 0; transform: translateY(8px); }
   .card::before {
-    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 8;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.2  0 0 0 0 0.18  0 0 0 0 0.12  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    opacity: .22; mix-blend-mode: multiply;
+    opacity: .18; mix-blend-mode: multiply;
   }
-  .corner { position: absolute; width: 14px; height: 14px; border: 0 solid var(--ink); z-index: 6; }
+  .corner { position: absolute; width: 14px; height: 14px; border: 0 solid var(--ink); z-index: 9; }
   .corner.tl { top: -1px; left: -1px; border-top-width: 4px; border-left-width: 4px; }
   .corner.tr { top: -1px; right: -1px; border-top-width: 4px; border-right-width: 4px; }
   .corner.bl { bottom: -1px; left: -1px; border-bottom-width: 4px; border-left-width: 4px; }
   .corner.br { bottom: -1px; right: -1px; border-bottom-width: 4px; border-right-width: 4px; }
 
-  /* котики */
+  /* котики справа сверху, обнимаются рядом с обложкой */
   .cats {
-    position: absolute; z-index: 2; left: -50px; top: -6px; height: 150px;
+    position: absolute; z-index: 2; left: 128px; top: 4px; width: 190px; height: 190px;
     filter: grayscale(.35) sepia(.18) contrast(1.02) brightness(1.02);
     mix-blend-mode: multiply;
-    -webkit-mask-image: linear-gradient(90deg, #000 62%, transparent 92%);
-            mask-image: linear-gradient(90deg, #000 62%, transparent 92%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 30%, #000 46%), linear-gradient(180deg, #000 80%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 30%, #000 46%), linear-gradient(180deg, #000 80%, transparent 100%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
   }
-  .cats-fade { position: absolute; z-index: 3; left: 0; top: 0; bottom: 0; width: 14px; background: linear-gradient(90deg, var(--paper), transparent); }
-  /* сердце ложится поверх сердечка с фото и "оживляет" его */
-  .heart { position: absolute; z-index: 5; left: 0px; top: 2px; width: 26px; height: 24px; transform-origin: center; }
+  /* сердце поверх сердечка с фото */
+  .heart { position: absolute; z-index: 6; left: 194px; top: 15px; width: 28px; height: 26px; transform-origin: center; }
   .heart path { fill: var(--heart); }
   .heart .crack { fill: none; stroke: var(--paper); stroke-width: 1.6; opacity: 0; }
   .playing .heart { animation: beat 1.6s ease-in-out infinite; }
-  .paused .heart path:not(.crack) { fill: #9a8f8a; }
-  .paused .heart .crack { opacity: 1; }
+  .idle .heart path:not(.crack) { fill: #9a8f8a; }
+  .idle .heart .crack { opacity: 1; }
   @keyframes beat { 0%, 60%, 100% { transform: scale(1); } 15% { transform: scale(1.18); } 30% { transform: scale(.96); } 45% { transform: scale(1.1); } }
 
-  .content { position: absolute; z-index: 4; left: 150px; right: 104px; top: 12px; bottom: 12px; }
+  /* полароид с обложкой */
+  .polaroid {
+    position: absolute; z-index: 5; left: 18px; top: 18px; width: 136px; padding: 7px 7px 22px; background: #f4f2ec;
+    box-shadow: 0 3px 9px rgba(0,0,0,.3); transform: rotate(-4deg);
+  }
+  .polaroid .img { width: 136px; height: 136px; background: #cfcac0 center / cover no-repeat; filter: grayscale(.3) sepia(.15) contrast(.95); transition: background-image .3s; }
+  .polaroid::after { content: ""; position: absolute; top: -8px; left: 50%; width: 46px; height: 15px; margin-left: -23px; background: rgba(214, 205, 180, .78); transform: rotate(5deg); box-shadow: 0 1px 1px rgba(0,0,0,.08); }
+  .polaroid .cap { position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 11px; letter-spacing: 2px; color: var(--muted); }
+  .idle .polaroid .img { filter: grayscale(1) contrast(.8) brightness(1.05); }
 
+  .info { position: absolute; z-index: 7; left: 18px; right: 18px; top: 196px; bottom: 12px; }
   .label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: 2.4px; color: var(--sc); text-transform: lowercase; }
   .label svg { width: 22px; height: 11px; fill: var(--sc); }
   .eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 10px; margin-left: 2px; }
@@ -72,75 +81,67 @@
   .playing .eq i:nth-child(3) { animation-delay: -.8s; }
   @keyframes eq { 0%, 100% { height: 3px; } 50% { height: 10px; } }
 
-  .title-box { margin-top: 6px; overflow: hidden; white-space: nowrap; height: 28px; position: relative;
+  .title-box { margin-top: 3px; overflow: hidden; white-space: nowrap; height: 28px;
     -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent); }
-  .title { display: inline-block; font-size: 24px; font-weight: 700; line-height: 28px; letter-spacing: .3px; padding-right: 40px; }
+  .title { display: inline-block; font-size: 23px; font-weight: 700; line-height: 28px; letter-spacing: .3px; padding-right: 40px; }
   .title.scroll { animation: marquee var(--dur, 12s) linear infinite; }
   @keyframes marquee { 0%, 12% { transform: translateX(0); } 88%, 100% { transform: translateX(var(--shift)); } }
-  .artist { font-size: 16px; font-weight: 600; color: #5f5c55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .artist { font-size: 15px; font-weight: 600; color: #5f5c55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; height: 18px; }
 
-  .bar { position: absolute; left: 0; right: 0; bottom: 18px; height: 2px; background: rgba(29,28,26,.18); }
-  .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--ink); transition: width 1s linear; }
-  .bar .dot { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--ink); left: 0; transition: left 1s linear; }
-  .times { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
-  .quote { color: var(--muted); font-weight: 500; letter-spacing: 2px; opacity: .85; }
-
-  /* полароид с обложкой */
-  .polaroid {
-    position: absolute; z-index: 5; right: 14px; top: 14px; width: 78px; padding: 5px 5px 16px; background: #f4f2ec;
-    box-shadow: 0 2px 6px rgba(0,0,0,.28); transform: rotate(4deg);
-  }
-  .polaroid .img { width: 78px; height: 78px; background: #cfcac0 center / cover no-repeat; filter: grayscale(.3) sepia(.15) contrast(.95); }
-  .polaroid::after { content: ""; position: absolute; top: -7px; left: 50%; width: 34px; height: 13px; margin-left: -17px; background: rgba(214, 205, 180, .75); transform: rotate(-6deg); box-shadow: 0 1px 1px rgba(0,0,0,.08); }
-  .polaroid .cap { position: absolute; left: 0; right: 0; bottom: 2px; text-align: center; font-size: 9px; letter-spacing: 1.5px; color: var(--muted); }
+  .bar { position: absolute; left: 0; right: 0; bottom: 20px; height: 2px; background: rgba(29,28,26,.18); }
+  .bar .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--ink); transition: width .5s linear; }
+  .bar .dot { position: absolute; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--ink); left: 0; transition: left .5s linear; }
+  .times { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+  .quote { font-size: 10.5px; font-weight: 500; letter-spacing: 1.5px; opacity: .9; white-space: nowrap; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="card hidden" id="card">
+  <div class="card idle" id="card">
     <img class="cats" src="cats.jpg" alt="">
-    <div class="cats-fade"></div>
     <svg class="heart" viewBox="0 0 24 22" aria-hidden="true">
       <path d="M12 21s-9-5.6-9-12.2C3 5 5.6 2.5 8.6 2.5c1.6 0 2.7.7 3.4 1.7.7-1 1.8-1.7 3.4-1.7C18.4 2.5 21 5 21 8.8 21 15.4 12 21 12 21z"/>
       <path class="crack" d="M12 4.6l-1.8 4 2.6 2.2-2 3.4 1.6 3"/>
     </svg>
 
-    <div class="content">
+    <div class="polaroid"><div class="img" id="cover" ></div><div class="cap" id="cap">on repeat</div></div>
+
+    <div class="info">
       <div class="label">
         <svg viewBox="0 0 44 22" aria-hidden="true"><path d="M2 20V13M5 20V11M8 20V9M11 20V10M14 20V7M17 20V6h0c1-3 4-5 8-5 5 0 9 4 9.5 8.5C38 9 42 11.5 42 15c0 3-2.4 5-5.5 5H17z"/></svg>
-        <span id="state">now playing</span>
+        <span id="state">silence</span>
         <span class="eq"><i></i><i></i><i></i></span>
       </div>
-      <div class="title-box"><span class="title" id="title">—</span></div>
-      <div class="artist" id="artist"></div>
+      <div class="title-box"><span class="title" id="title">тишина…</span></div>
+      <div class="artist" id="artist">nothing is playing</div>
       <div class="bar"><div class="fill" id="fill"></div><div class="dot" id="dot"></div></div>
-      <div class="times"><span id="pos">0:00</span><span class="quote" id="quote">headphones on, world off.</span><span id="dur">0:00</span></div>
+      <div class="times"><span id="pos">0:00</span><span class="quote" id="quote">headphones on, world off.</span><span id="dur">–:––</span></div>
     </div>
-
-    <div class="polaroid"><div class="img" id="cover"></div><div class="cap">on repeat</div></div>
 
     <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
   </div>
 </div>
 
 <script>
-  // Параметры: ?topic=<канал из topic.txt>  &scale=1.5  &quote=текст  &hide=0 (не прятать на паузе)  &demo=1
+  // Параметры: ?topic=<канал>  &scale=1.5  &quote=текст  &hide=1 (прятать, когда тишина)  &demo=1
   const q = new URLSearchParams(location.search);
   const $ = id => document.getElementById(id);
   document.documentElement.style.setProperty('--scale', parseFloat(q.get('scale')) || 1);
   if (q.has('quote')) $('quote').textContent = q.get('quote');
-  const hideWhenIdle = q.get('hide') !== '0';
+  const hideWhenIdle = q.get('hide') === '1';
 
+  const FALLBACK = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 136 136'><rect width='136' height='136' fill='%23cbc6bb'/><path d='M30 92V78M36 92V74M42 92V70M48 92V72M54 92V66M60 92V64c2-7 9-12 18-12 11 0 20 9 21 19 8-1 15 5 15 12 0 6-5 9-11 9H60z' fill='none' stroke='%23a39d90' stroke-width='3' stroke-linecap='round'/></svg>")`;
+  $('cover').style.backgroundImage = FALLBACK;
   const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-  let state = null, lastTitle = null, fetchedAt = 0, idleSince = null;
+  let state = { has: false, playing: false, position: 0, duration: 0 };
+  let lastKey = null, measuredAt = Date.now(), lastId = null;
 
   function setTitle(text) {
     const t = $('title');
     t.classList.remove('scroll');
     t.textContent = text;
     requestAnimationFrame(() => {
-      const box = t.parentElement.clientWidth;
-      const over = t.scrollWidth - box;
+      const over = t.scrollWidth - t.parentElement.clientWidth;
       if (over > 0) {
         t.style.setProperty('--shift', `-${over}px`);
         t.style.setProperty('--dur', `${Math.max(8, over / 18 + 6)}s`);
@@ -150,60 +151,84 @@
   }
 
   function draw() {
-    if (!state) return;
     const card = $('card');
-    let pos = state.position;
-    if (state.playing) pos += (Date.now() - fetchedAt) / 1000;
-    // скрипт на ПК закрыли посреди трека — трек "доиграл", прячемся
+    let pos = state.position || 0;
+    if (state.playing) pos += (Date.now() - measuredAt) / 1000;
+    // скрипт на ПК пропал посреди трека — трек "доиграл"
     const stale = state.playing && state.duration > 0 && pos > state.duration + 15;
+    const active = state.has && !stale;
     if (state.duration > 0) pos = Math.min(pos, state.duration);
-    const pct = state.duration > 0 ? (pos / state.duration) * 100 : 0;
+    const pct = active && state.duration > 0 ? (pos / state.duration) * 100 : 0;
     $('fill').style.width = pct + '%';
     $('dot').style.left = pct + '%';
-    $('pos').textContent = fmt(pos);
-    $('dur').textContent = state.duration > 0 ? fmt(state.duration) : '–:––';
-    card.classList.toggle('playing', !!state.playing);
-    card.classList.toggle('paused', !state.playing);
-    $('state').textContent = state.playing ? 'now playing' : 'paused';
+    $('pos').textContent = active ? fmt(pos) : '0:00';
+    $('dur').textContent = active && state.duration > 0 ? fmt(state.duration) : '–:––';
 
-    const idle = !state.has || !state.playing;
-    if (idle) { idleSince = idleSince || Date.now(); } else { idleSince = null; }
-    // прячем, если ничего нет, или пауза дольше 20 сек
-    const hide = stale || (hideWhenIdle && (!state.has || (idleSince && Date.now() - idleSince > 20000)));
-    card.classList.toggle('hidden', hide);
+    const playing = active && state.playing;
+    card.classList.toggle('playing', playing);
+    card.classList.toggle('idle', !playing);
+    $('state').textContent = playing ? 'now playing' : (active ? 'paused' : 'silence');
+    if (!active && lastKey !== null) {
+      lastKey = null;
+      setTitle('тишина…');
+      $('artist').textContent = 'nothing is playing';
+      $('cover').style.backgroundImage = FALLBACK;
+    }
+    card.classList.toggle('hidden', hideWhenIdle && !active);
   }
 
-  function apply(d) {
-    // позиция была замерена в момент d.ts на том же ПК
-    fetchedAt = d.ts || Date.now();
+  function apply(d, attachmentUrl) {
+    measuredAt = d.ts || Date.now();
     state = d;
-    const key = d.title + '|' + d.artist;
-    if (d.has && key !== lastTitle) {
-      lastTitle = key;
-      setTitle(d.title || '—');
-      $('artist').textContent = d.artist || '';
+    if (d.has) {
+      const key = d.title + '|' + d.artist;
+      if (key !== lastKey) {
+        lastKey = key;
+        setTitle(d.title || '—');
+        $('artist').textContent = d.artist || '';
+        $('cover').style.backgroundImage = FALLBACK;
+      }
+      const cover = attachmentUrl || d.cover;
+      if (cover) $('cover').style.backgroundImage = `url("${cover}")`;
     }
-    if (d.has) $('cover').style.backgroundImage = d.cover ? `url("${d.cover}")` : 'url("cats.jpg")';
     draw();
   }
 
+  function handle(m) {
+    if (!m || m.event !== 'message' || !m.message || m.message[0] !== '{') return;
+    if (m.id && m.id === lastId) return;
+    lastId = m.id;
+    try { apply(JSON.parse(m.message), m.attachment && m.attachment.url); } catch (e) {}
+  }
+
   if (q.get('demo') === '1') {
-    apply({ has: true, playing: true, title: 'Автостопом По Фазе Сна — Ты', artist: 'GiGi', position: 40, duration: 126.4, cover: null, ts: Date.now() });
+    apply({ has: true, playing: true, title: 'Автостопом По Фазе Сна — Ты', artist: 'GiGi', position: 40, duration: 126.4, ts: Date.now() });
   } else {
-    // данные приходят от скрипта на ПК через ntfy.sh (канал = topic из ссылки)
     const topic = (q.get('topic') || '').replace(/[^\w-]/g, '');
     if (topic) {
-      const es = new EventSource(`https://ntfy.sh/${topic}/sse?since=latest`);
-      es.onmessage = ev => {
+      const base = `https://ntfy.sh/${topic}`;
+      let sseAlive = false;
+      // основной канал — живое соединение
+      try {
+        const es = new EventSource(`${base}/sse?since=latest`);
+        es.onopen = () => { sseAlive = true; };
+        es.onmessage = ev => { sseAlive = true; try { handle(JSON.parse(ev.data)); } catch (e) {} };
+        es.onerror = () => { sseAlive = false; };
+      } catch (e) {}
+      // запасной канал — если живое соединение не работает (например, в TikTok Studio)
+      async function pollOnce() {
+        if (sseAlive) return;
         try {
-          const m = JSON.parse(ev.data);
-          if (m.event !== 'message' || !m.message || m.message[0] !== '{') return;
-          apply(JSON.parse(m.message));
-        } catch (e) { /* не наше сообщение (например, файл обложки) */ }
-      };
+          const txt = await (await fetch(`${base}/json?poll=1&since=latest`, { cache: 'no-store' })).text();
+          txt.trim().split('\n').filter(Boolean).forEach(l => { try { handle(JSON.parse(l)); } catch (e) {} });
+        } catch (e) {}
+      }
+      setTimeout(pollOnce, 3000);
+      setInterval(pollOnce, 6000);
     }
   }
-  setInterval(draw, 1000);
+  draw();
+  setInterval(draw, 500);
 </script>
 </body>
 </html>
